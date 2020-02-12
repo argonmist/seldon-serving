@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-deployment
+  labels:
+    app: model-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-deploy
+  template:
+    metadata:
+      labels:
+        app: model-deploy
+    spec:
+      containers:
+      - name: model-deploy
+        image: argonhiisi/model-deploy:latest
+        ports:
+        - containerPort: 5000
+      hostAliases:
+      - ip: 172.23.128.47
+        hostnames:
+         - lb-apiserver.kubernetes.local

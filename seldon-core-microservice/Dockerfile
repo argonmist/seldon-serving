@@ -1,0 +1,13 @@
+FROM python:3.6-slim
+
+COPY . /app
+WORKDIR /app
+RUN pip3 install -r requirements.txt
+EXPOSE 5000
+
+# Define environment variable
+ENV API_TYPE REST
+ENV SERVICE_TYPE MODEL
+ENV PERSISTENCE 0
+
+CMD exec seldon-core-microservice $MODEL_NAME $API_TYPE --service-type $SERVICE_TYPE --persistence $PERSISTENCE

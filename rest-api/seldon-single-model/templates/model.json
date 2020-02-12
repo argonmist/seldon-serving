@@ -1,0 +1,81 @@
+{
+    "apiVersion": "{{ .Values.apiVersion }}",
+    "kind": "SeldonDeployment",
+    "metadata": {
+        "labels": {{ .Values.sdepLabels | toJson }},
+        "name": "{{ .Release.Name }}"
+    },
+    "spec": {
+        "annotations":{{ .Values.model.annotations | toJson }},
+        "name": "{{ .Release.Name }}",
+{{- if .Values.oauth.key }}        
+        "oauth_key": "{{ .Values.oauth.key }}",
+        "oauth_secret": "{{ .Values.oauth.secret }}",
+{{- end }}
+        "predictors": [
+            {
+                "componentSpecs": [{
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "{{ .Values.model.image.name }}",
+                                "imagePullPolicy": "{{ .Values.model.image.pullPolicy }}",
+                                "name": "{{ .Values.model.name }}",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/app",
+                                        "name": "pvc"
+                                    }
+                                ],
+                                "resources": {{ .Values.model.resources | toJson }},
+                                "env": [
+{
+"name": "LOG_LEVEL",
+"value": "INFO"
+},
+{{- range $key, $value := .Values.model.env }}
+{
+"name": "{{ $key }}",
+"value": "{{ $value }}"
+}
+{{- end}}
+]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "pvc",
+                                "persistentVolumeClaim": {
+                                    "claimName": "model-claim"
+                                    }
+                            }
+                        ],
+                        "terminationGracePeriodSeconds": 1
+                    }}
+                                  ],
+                "graph":
+                {
+                    "children": [],
+                    "name": "{{ .Values.model.name }}",
+                    "type": "MODEL",
+                    "endpoint": {
+                        "type": "REST"
+                    }},
+                "svcOrchSpec": {
+                "resources": {{ .Values.engine.resources | toJson }},
+"env": [
+{{- range $key, $value := .Values.engine.env }}
+{
+"name": "{{ $key }}",
+"value": "{{ $value }}"
+},
+{{- end}}
+]
+                },
+                "name": "{{ .Release.Name }}",
+                "replicas": {{ .Values.replicas }},
+            "labels": {{ .Values.predictorLabels | toJson }}
+            }
+        ]
+    }
+}
