@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: model-deploy
-        image: argonhiisi/model-deploy:latest
+        image: argonhiisi/seldon-core-microservice:latest
         ports:
         - containerPort: 5000
       hostAliases:
